@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Revamped Coffee Co — Dark Design</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: #0a0a0a; color: #e8e0d6; font-family: 'Crimson Text', Georgia, serif; overflow-x: hidden; }
+
+:root {
+  --blood: #8b1a1a;
+  --blood-light: #a52a2a;
+  --ember: #c4551a;
+  --bone: #e8e0d6;
+  --fog: #9a928a;
+  --midnight: #0a0a0a;
+  --charcoal: #151515;
+  --smoke: #1e1e1e;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--midnight); }
+::-webkit-scrollbar-thumb { background: var(--blood); border-radius: 3px; }
+
+/* Fog overlay animation */
+@keyframes fogDrift {
+  0% { transform: translateX(-20%) translateY(0); opacity: 0.03; }
+  50% { transform: translateX(10%) translateY(-5px); opacity: 0.06; }
+  100% { transform: translateX(-20%) translateY(0); opacity: 0.03; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.9; }
+  97% { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139,26,26,0.2); }
+  50% { box-shadow: 0 0 40px rgba(139,26,26,0.4); }
+}
+
+.fade-up { animation: fadeUp 0.8s ease-out forwards; opacity: 0; }
+.fade-up-delay-1 { animation-delay: 0.15s; }
+.fade-up-delay-2 { animation-delay: 0.3s; }
+.fade-up-delay-3 { animation-delay: 0.45s; }
+
+/* Nav */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(139,26,26,0.2);
+  transition: all 0.3s;
+}
+nav.scrolled { background: rgba(10,10,10,0.95); }
+
+/* Section styling */
+section { position: relative; }
+section::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(139,26,26,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Menu card hover */
+.menu-card {
+  background: var(--charcoal);
+  border: 1px solid rgba(139,26,26,0.15);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.menu-card:hover {
+  border-color: rgba(139,26,26,0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(139,26,26,0.15);
+}
+
+/* Review card */
+.review-card {
+  background: var(--charcoal);
+  border: 1px solid rgba(232,224,214,0.06);
+  transition: all 0.3s;
+}
+.review-card:hover {
+  border-color: rgba(139,26,26,0.3);
+}
+
+/* Blood drip divider */
+.blood-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--blood), transparent);
+  opacity: 0.5;
+}
+
+/* CTA button */
+.cta-btn {
+  background: var(--blood);
+  color: var(--bone);
+  padding: 14px 36px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.cta-btn:hover {
+  background: var(--blood-light);
+  box-shadow: 0 0 30px rgba(139,26,26,0.4);
+}
+.cta-btn::after {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s;
+}
+.cta-btn:hover::after { left: 100%; }
+
+/* Ghost button */
+.ghost-btn {
+  background: transparent;
+  color: var(--bone);
+  padding: 12px 32px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(232,224,214,0.2);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.ghost-btn:hover {
+  border-color: var(--blood);
+  color: var(--blood-light);
+}
+
+/* Star rating */
+.star { color: var(--ember); }
+
+/* Pentagram bullet */
+.penta::before {
+  content: '⛧';
+  margin-right: 10px;
+  color: var(--blood);
+  font-size: 12px;
+}
+
+/* mobile */
+@media (max-width: 768px) {
+  .hero-title { font-size: 2.5rem !important; }
+  .menu-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ─── Data ─── */
+const menuCategories = [
+  {
+    name: "Major Arcana",
+    subtitle: "Specialty Coffee",
+    items: [
+      { name: "The Magician", desc: "Cinnamon, white chocolate, maple", price: "7.25" },
+      { name: "Lilith", desc: "Spicy white chocolate, whip cream", price: "7.00" },
+      { name: "Temperance", desc: "White chocolate, blueberry", price: "7.25" },
+      { name: "The Lovers", desc: "Dark chocolate, cherry", price: "7.25" },
+      { name: "Death", desc: "Mexican mocha", price: "6.85" },
+      { name: "High Priestess", desc: "Tart raspberry, dark chocolate", price: "7.25" },
+    ]
+  },
+  {
+    name: "Potions",
+    subtitle: "Traditional Coffee",
+    items: [
+      { name: "Black Widow", desc: "Classic latte with whole milk", price: "6.25" },
+      { name: "Swamp Water", desc: "Classic Americano — try it sparkling", price: "5.75" },
+      { name: "Witch's Brew", desc: "Signature iced coffee", price: "4.75" },
+      { name: "Dark & Stormy", desc: "Blend of creamy foam and espresso", price: "6.25" },
+      { name: "Scaramel Machiatto", desc: "Vanilla, whole milk, caramel layers", price: "7.95" },
+      { name: "Flat White", desc: "Three shots of espresso with whole milk", price: "7.95" },
+    ]
+  },
+  {
+    name: "Mystical Serums",
+    subtitle: "Spring & Summer Specials",
+    items: [
+      { name: "Poison Apple", desc: "Apple, cinnamon caramel, oat milk, red cold foam", price: "8.80" },
+      { name: "Gaia", desc: "Honeycrisp apple, lavender, white espresso", price: "8.30" },
+      { name: "Purple People Eater", desc: "Violet, dark chocolate and espresso", price: "7.95" },
+      { name: "Rose Red", desc: "Lemoncello water, rose syrup, espresso", price: "6.95" },
+      { name: "Butterscotch Latte", desc: "Butterscotch, espresso, caramel drizzle", price: "7.95" },
+      { name: "Pumpkin Pie Latte", desc: "Housemade pumpkin puree, cinnamon", price: "7.95" },
+    ]
+  },
+  {
+    name: "Milk Tea Spell Book",
+    subtitle: "With Bursting Pearls",
+    items: [
+      { name: "Taro Bubble Tea", desc: "Creamy taro with strawberry pearls", price: "7.50" },
+      { name: "Butterfly Pea", desc: "Coconut milk & rose pearls", price: "7.25" },
+      { name: "Matcha Bubble Tea", desc: "Traditional matcha with peach pearls", price: "7.75" },
+      { name: "Watermelon", desc: "Summer refresher with kiwi pearls", price: "7.50" },
+      { name: "Brown Sugar", desc: "Brown sugar milk tea, chocolate pearls", price: "7.50" },
+      { name: "Honeydew", desc: "Creamy honeydew with rainbow pearls", price: "7.50" },
+    ]
+  },
+  {
+    name: "Ghoulish Delights",
+    subtitle: "Food & Pastries",
+    items: [
+      { name: "Bacon Breakfast Burrito", desc: "Bacon, egg, peppers, potatoes, salsa verde", price: "8.50" },
+      { name: "Chorizo Breakfast Burrito", desc: "Chorizo, egg, peppers, onion, cheese", price: "8.75" },
+      { name: "Sausage Egg & Cheese Bagel", desc: "Local sausage, cheddar on everything bagel", price: "7.95" },
+      { name: "Ham & Cheese Sliders", desc: "Hawaiian rolls, smoked honey ham, melted jack", price: "6.75" },
+      { name: "Cookie Butter Stuffed Cookie", desc: "6.4oz with biscoff cookies, 5g protein", price: "6.50" },
+      { name: "Pesto Sun-Dried Tomato Bagel", desc: "Pesto basil, sun-dried tomato, monterey jack", price: "7.25" },
+    ]
+  },
+  {
+    name: "Herbal Elixirs",
+    subtitle: "Teas & Tea Lattes",
+    items: [
+      { name: "Chai Tea Latte", desc: "Spicy chai and whole milk", price: "6.75" },
+      { name: "London Fog", desc: "Earl grey, vanilla & whole milk", price: "6.25" },
+      { name: "Campfire Tea", desc: "Lapsong Souchong, smokey pinewood, cedar tips", price: "4.25" },
+      { name: "Iced Blackberry Chai", desc: "Blackberry puree, chai & oat milk", price: "6.95" },
+      { name: "Matcha Tea Latte", desc: "Traditional matcha", price: "6.75" },
+      { name: "Peach Fog", desc: "Earl grey infused with peach and vanilla", price: "6.25" },
+    ]
+  }
+];
+
+const reviews = [
+  { name: "Baylee S.", text: "Taysha and her wife are the BEST! The Temperance is my favorite drink — white chocolate and blueberry. The espresso is so delicious and flavorful. Also, the bacon breakfast burrito is delicious and obviously freshly made.", rating: 5 },
+  { name: "Chelsea H.", text: "This place is amazing!! I love supporting a woman-owned business that infuses quality and creativity into everything they do. The Raspberry Truffle is my favorite. There is so much flavor and really gets me going for my day!", rating: 5 },
+  { name: "Laura U.", text: "The Bacon Breakfast Burrito is so good and really big! Everything came warm and packaged well. The drinks are always great from Revamped! Their seasonal drinks are such a treat!", rating: 5 },
+  { name: "Alyvia C.", text: "They were out of my original order but willingly replaced it and didn't charge me. I love their drinks here. Tastes so consistent and fresh. The portions are accurate and awesome. I will always order from here.", rating: 5 },
+];
+
+/* ─── Components ─── */
+
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handler);
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  const links = [
+    { label: "Story", href: "#story" },
+    { label: "Menu", href: "#menu" },
+    { label: "Community", href: "#community" },
+    { label: "Reviews", href: "#reviews" },
+    { label: "Visit", href: "#visit" },
+  ];
+
+  return (
+    <nav className={scrolled ? 'scrolled' : ''}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <a href="#" style={{ textDecoration: 'none', color: 'var(--bone)', fontFamily: "'Cinzel Decorative', serif", fontSize: 18, fontWeight: 700, letterSpacing: 1 }}>
+          REVAMPED<span style={{ color: 'var(--blood)' }}>.</span>
+        </a>
+
+        {/* Desktop nav */}
+        <div style={{ display: 'flex', gap: 32, alignItems: 'center' }} className="desktop-nav">
+          {links.map(l => (
+            <a key={l.label} href={l.href} style={{
+              textDecoration: 'none', color: 'var(--fog)', fontFamily: "'Inter', sans-serif",
+              fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', transition: 'color 0.3s'
+            }} onMouseOver={e => e.target.style.color = 'var(--bone)'} onMouseOut={e => e.target.style.color = 'var(--fog)'}>{l.label}</a>
+          ))}
+          <a href="https://order.online/store/revamped-coffee-co-24566711" target="_blank" rel="noopener" style={{
+            textDecoration: 'none', color: 'var(--blood-light)', fontFamily: "'Inter', sans-serif",
+            fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', fontWeight: 600
+          }}>Order Online</a>
+        </div>
+
+        {/* Mobile hamburger */}
+        <button onClick={() => setMenuOpen(!menuOpen)} style={{
+          display: 'none', background: 'none', border: 'none', color: 'var(--bone)',
+          fontSize: 24, cursor: 'pointer', padding: 4
+        }} className="mobile-toggle">
+          {menuOpen ? '✕' : '☰'}
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div style={{ padding: '0 24px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {links.map(l => (
+            <a key={l.label} href={l.href} onClick={() => setMenuOpen(false)} style={{
+              textDecoration: 'none', color: 'var(--fog)', fontFamily: "'Inter', sans-serif",
+              fontSize: 13, letterSpacing: 2, textTransform: 'uppercase'
+            }}>{l.label}</a>
+          ))}
+        </div>
+      )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-toggle { display: block !important; }
+        }
+      `}</style>
+    </nav>
+  );
+}
+
+function Hero() {
+  return (
+    <section style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+      alignItems: 'center', textAlign: 'center', padding: '120px 24px 80px', position: 'relative',
+      background: `
+        radial-gradient(ellipse at 50% 30%, rgba(139,26,26,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, rgba(139,26,26,0.04) 0%, transparent 40%),
+        linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%)
+      `
+    }}>
+      {/* Fog effect */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 1000 300\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'f\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.003\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23f)\' opacity=\'0.15\'/%3E%3C/svg%3E")',
+        opacity: 0.3, animation: 'fogDrift 20s ease-in-out infinite', pointerEvents: 'none'
+      }} />
+
+      <div className="fade-up" style={{ marginBottom: 24 }}>
+        <span style={{
+          fontFamily: "'Inter', sans-serif", fontSize: 11, letterSpacing: 6, textTransform: 'uppercase',
+          color: 'var(--blood-light)', display: 'block', marginBottom: 24
+        }}>Montana's Only Spooky-Themed Coffee Shop</span>
+      </div>
+
+      <h1 className="fade-up fade-up-delay-1 hero-title" style={{
+        fontFamily: "'Cinzel Decorative', serif", fontSize: '4.5rem', fontWeight: 900,
+        lineHeight: 1.05, maxWidth: 800, color: 'var(--bone)',
+        animation: 'flicker 8s infinite, fadeUp 0.8s ease-out 0.15s forwards',
+        textShadow: '0 0 60px rgba(139,26,26,0.2)'
+      }}>
+        Keeping You<br />
+        <span style={{ color: 'var(--blood)' }}>Coffinated</span>
+      </h1>
+
+      <p className="fade-up fade-up-delay-2" style={{
+        fontFamily: "'Crimson Text', serif", fontSize: 20, color: 'var(--fog)',
+        maxWidth: 480, lineHeight: 1.7, marginTop: 28, fontStyle: 'italic'
+      }}>
+        Ethically sourced beans. Wickedly creative drinks.<br />Women & LGBTQ owned since 2022.
+      </p>
+
+      <div className="fade-up fade-up-delay-3" style={{ display: 'flex', gap: 16, marginTop: 48, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button className="cta-btn">View Full Menu</button>
+        <button className="ghost-btn" onClick={() => document.getElementById('story').scrollIntoView({ behavior: 'smooth' })}>Our Story</button>
+      </div>
+
+      {/* Scroll indicator */}
+      <div style={{
+        position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, opacity: 0.3
+      }}>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3, textTransform: 'uppercase' }}>Scroll</span>
+        <div style={{ width: 1, height: 40, background: 'linear-gradient(var(--bone), transparent)' }} />
+      </div>
+    </section>
+  );
+}
+
+function Story() {
+  return (
+    <section id="story" style={{ padding: '120px 24px', position: 'relative' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <div className="blood-divider" style={{ marginBottom: 80 }} />
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+          <div className="story-text">
+            <span style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 11, letterSpacing: 5, textTransform: 'uppercase',
+              color: 'var(--blood)', display: 'block', marginBottom: 20
+            }}>Our Origin</span>
+
+            <h2 style={{
+              fontFamily: "'Cinzel Decorative', serif", fontSize: '2.2rem', fontWeight: 700,
+              lineHeight: 1.2, marginBottom: 28, color: 'var(--bone)'
+            }}>Born on Friday<br />the 13th</h2>
+
+            <p style={{ fontSize: 18, lineHeight: 1.9, color: 'var(--fog)', marginBottom: 20 }}>
+              Taysha Timmer was born on Friday, October 13th. Her dad loved all things Halloween.
+              So when she and her wife Kat opened their coffee shop in the summer of 2022, the
+              spooky theme wasn't a gimmick — it was home.
+            </p>
+            <p style={{ fontSize: 18, lineHeight: 1.9, color: 'var(--fog)', marginBottom: 20 }}>
+              Revamped Coffee Co is Montana's only spooky-themed coffee shop — a punk rock, gothic
+              haven where every drink is an experience and every customer is family. Women and LGBTQ
+              owned, they believe that quality coffee and community shouldn't be a luxury.
+            </p>
+            <p style={{ fontSize: 18, lineHeight: 1.9, color: 'var(--fog)' }}>
+              With two Belgrade locations — the original drive-thru <em>Hut</em> on Jackrabbit Lane
+              and the downtown <em>Cafe</em> on Broadway — they've quickly become a beloved staple
+              of the Gallatin Valley.
+            </p>
+          </div>
+
+          <div className="story-visual" style={{
+            background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.2)',
+            padding: 48, position: 'relative'
+          }}>
+            <div style={{
+              position: 'absolute', top: -1, left: 40, right: 40, height: 2,
+              background: 'linear-gradient(90deg, transparent, var(--blood), transparent)'
+            }} />
+
+            <div style={{ textAlign: 'center' }}>
+              <span style={{ fontSize: 64, display: 'block', marginBottom: 20, filter: 'grayscale(0.3)' }}>👻</span>
+              <p style={{
+                fontFamily: "'Cinzel Decorative', serif", fontSize: 28, color: 'var(--bone)',
+                marginBottom: 12
+              }}>Sip Sip</p>
+              <p style={{
+                fontFamily: "'Cinzel Decorative', serif", fontSize: 36, color: 'var(--blood)',
+                fontWeight: 700, marginBottom: 32
+              }}>BooYAH!</p>
+
+              <div style={{ borderTop: '1px solid rgba(232,224,214,0.1)', paddingTop: 28, textAlign: 'left' }}>
+                {["Ethically sourced beans", "50+ handcrafted drinks", "Rotating monthly specials", "Breakfast burritos & pastries"].map((t, i) => (
+                  <p key={i} className="penta" style={{
+                    fontFamily: "'Inter', sans-serif", fontSize: 13, color: 'var(--fog)',
+                    letterSpacing: 1, marginBottom: 14, lineHeight: 1.6
+                  }}>{t}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          #story > div > div:last-child { grid-template-columns: 1fr !important; }
+          .story-visual { margin-top: 20px; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function Menu() {
+  const [activeCategory, setActiveCategory] = useState(0);
+  const cat = menuCategories[activeCategory];
+
+  return (
+    <section id="menu" style={{
+      padding: '120px 24px', position: 'relative',
+      background: 'linear-gradient(180deg, var(--midnight) 0%, #0d0d0d 50%, var(--midnight) 100%)'
+    }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 60 }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 11, letterSpacing: 5, textTransform: 'uppercase',
+            color: 'var(--blood)', display: 'block', marginBottom: 16
+          }}>The Menu</span>
+          <h2 style={{
+            fontFamily: "'Cinzel Decorative', serif", fontSize: '2.5rem', fontWeight: 700,
+            color: 'var(--bone)'
+          }}>Choose Your Poison</h2>
+        </div>
+
+        {/* Category tabs */}
+        <div style={{
+          display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 48,
+          flexWrap: 'wrap', padding: '0 12px'
+        }}>
+          {menuCategories.map((c, i) => (
+            <button key={c.name} onClick={() => setActiveCategory(i)} style={{
+              background: i === activeCategory ? 'var(--blood)' : 'transparent',
+              color: i === activeCategory ? 'var(--bone)' : 'var(--fog)',
+              border: i === activeCategory ? '1px solid var(--blood)' : '1px solid rgba(232,224,214,0.1)',
+              padding: '10px 20px',
+              fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 1.5,
+              textTransform: 'uppercase', cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}>{c.name}</button>
+          ))}
+        </div>
+
+        {/* Category subtitle */}
+        <p style={{
+          textAlign: 'center', fontFamily: "'Crimson Text', serif", fontSize: 18,
+          fontStyle: 'italic', color: 'var(--fog)', marginBottom: 40
+        }}>{cat.subtitle}</p>
+
+        {/* Items grid */}
+        <div className="menu-grid" style={{
+          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16
+        }}>
+          {cat.items.map((item, i) => (
+            <div key={item.name + i} className="menu-card" style={{ padding: '28px 32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <h3 style={{
+                  fontFamily: "'Cinzel Decorative', serif", fontSize: 16, fontWeight: 400,
+                  color: 'var(--bone)', letterSpacing: 0.5
+                }}>{item.name}</h3>
+                <span style={{
+                  fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--blood-light)',
+                  fontWeight: 500, whiteSpace: 'nowrap', marginLeft: 16
+                }}>${item.price}</span>
+              </div>
+              <p style={{
+                fontFamily: "'Crimson Text', serif", fontSize: 15, color: 'var(--fog)',
+                lineHeight: 1.5
+              }}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: 48 }}>
+          <button className="ghost-btn">View Full Menu</button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Community() {
+  return (
+    <section id="community" style={{ padding: '120px 24px' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <div className="blood-divider" style={{ marginBottom: 80 }} />
+
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 11, letterSpacing: 5, textTransform: 'uppercase',
+            color: 'var(--blood)', display: 'block', marginBottom: 16
+          }}>Giving Back</span>
+          <h2 style={{
+            fontFamily: "'Cinzel Decorative', serif", fontSize: '2.5rem', fontWeight: 700,
+            color: 'var(--bone)', maxWidth: 600, margin: '0 auto', lineHeight: 1.2
+          }}>More Than Coffee</h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }} className="community-grid">
+          {[
+            {
+              icon: "🍲",
+              title: "Free Food Pantry",
+              text: "Revamped operates one of only two free food pantries in Belgrade, restocked monthly out of the owners' own pockets. Because no one should go hungry."
+            },
+            {
+              icon: "📚",
+              title: "Little Free Library",
+              text: "A free community library right at the shop — grab a book, leave a book. Access to literature shouldn't cost anything."
+            },
+            {
+              icon: "🎃",
+              title: "Community Events",
+              text: "From trivia nights to pay-what-you-can community dinners, Revamped regularly opens its doors for more than just coffee. All dinner proceeds go to the food pantry."
+            }
+          ].map((item, i) => (
+            <div key={i} style={{
+              background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
+              padding: 40, textAlign: 'center'
+            }}>
+              <span style={{ fontSize: 40, display: 'block', marginBottom: 20 }}>{item.icon}</span>
+              <h3 style={{
+                fontFamily: "'Cinzel Decorative', serif", fontSize: 16, color: 'var(--bone)',
+                marginBottom: 16, fontWeight: 400
+              }}>{item.title}</h3>
+              <p style={{
+                fontFamily: "'Crimson Text', serif", fontSize: 16, color: 'var(--fog)',
+                lineHeight: 1.8
+              }}>{item.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{
+          marginTop: 60, background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.2)',
+          padding: '40px 48px', position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute', left: 0, top: 20, bottom: 20, width: 3,
+            background: 'var(--blood)'
+          }} />
+          <p style={{
+            fontFamily: "'Crimson Text', serif", fontSize: 22, fontStyle: 'italic',
+            color: 'var(--bone)', lineHeight: 1.7, maxWidth: 800
+          }}>
+            "At Revamped, we believe we are only as strong as our community.
+            We work to make sure we can provide for those around us."
+          </p>
+          <p style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 12, color: 'var(--fog)',
+            marginTop: 16, letterSpacing: 2, textTransform: 'uppercase'
+          }}>— Taysha & Kat Timmer, Founders</p>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .community-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function Reviews() {
+  return (
+    <section id="reviews" style={{
+      padding: '120px 24px',
+      background: 'linear-gradient(180deg, var(--midnight) 0%, #0d0d0d 50%, var(--midnight) 100%)'
+    }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 11, letterSpacing: 5, textTransform: 'uppercase',
+            color: 'var(--blood)', display: 'block', marginBottom: 16
+          }}>What They Say</span>
+          <h2 style={{
+            fontFamily: "'Cinzel Decorative', serif", fontSize: '2.5rem', fontWeight: 700,
+            color: 'var(--bone)', marginBottom: 12
+          }}>The Verdict</h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 20 }}>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {[1,2,3,4,5].map(i => <span key={i} className="star" style={{ fontSize: 20 }}>★</span>)}
+            </div>
+            <span style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--fog)'
+            }}>4.8 / 5 — 1,000+ ratings on DoorDash</span>
+          </div>
+          <p style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 13, color: 'var(--fog)', marginTop: 8
+          }}>96% recommend on Facebook</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }} className="reviews-grid">
+          {reviews.map((r, i) => (
+            <div key={i} className="review-card" style={{ padding: '32px 36px' }}>
+              <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+                {Array(r.rating).fill(0).map((_, j) => <span key={j} className="star" style={{ fontSize: 14 }}>★</span>)}
+              </div>
+              <p style={{
+                fontFamily: "'Crimson Text', serif", fontSize: 17, color: 'var(--bone)',
+                lineHeight: 1.8, marginBottom: 20, fontStyle: 'italic'
+              }}>"{r.text}"</p>
+              <p style={{
+                fontFamily: "'Inter', sans-serif", fontSize: 12, color: 'var(--fog)',
+                letterSpacing: 1.5, textTransform: 'uppercase'
+              }}>— {r.name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .reviews-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function Visit() {
+  return (
+    <section id="visit" style={{ padding: '120px 24px' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <div className="blood-divider" style={{ marginBottom: 80 }} />
+
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 11, letterSpacing: 5, textTransform: 'uppercase',
+            color: 'var(--blood)', display: 'block', marginBottom: 16
+          }}>Find Us</span>
+          <h2 style={{
+            fontFamily: "'Cinzel Decorative', serif", fontSize: '2.5rem', fontWeight: 700,
+            color: 'var(--bone)'
+          }}>Visit the Crypt</h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }} className="visit-grid">
+          {[
+            {
+              name: 'The Hut',
+              type: 'Drive-Thru',
+              address: '403 Jackrabbit Ln',
+              city: 'Belgrade, MT 59714',
+              note: 'Original location with drive-thru'
+            },
+            {
+              name: 'The Cafe',
+              type: 'Downtown',
+              address: '11 N Broadway, Unit 101',
+              city: 'Belgrade, MT 59714',
+              note: 'Dine-in cafe in downtown Belgrade'
+            }
+          ].map((loc, i) => (
+            <div key={i} style={{
+              background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.2)',
+              padding: '40px 44px', position: 'relative', overflow: 'hidden'
+            }}>
+              <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+                background: 'linear-gradient(90deg, transparent, var(--blood), transparent)'
+              }} />
+              <span style={{
+                fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
+                textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 12
+              }}>{loc.type}</span>
+              <h3 style={{
+                fontFamily: "'Cinzel Decorative', serif", fontSize: 24, color: 'var(--bone)',
+                marginBottom: 20, fontWeight: 700
+              }}>{loc.name}</h3>
+              <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, color: 'var(--fog)', marginBottom: 4 }}>{loc.address}</p>
+              <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, color: 'var(--fog)', marginBottom: 16 }}>{loc.city}</p>
+              <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 15, color: 'var(--fog)', fontStyle: 'italic', opacity: 0.7 }}>{loc.note}</p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{
+          marginTop: 48, background: 'var(--charcoal)', border: '1px solid rgba(232,224,214,0.06)',
+          padding: '36px 44px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          flexWrap: 'wrap', gap: 20
+        }}>
+          <div>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--blood)', marginBottom: 8 }}>Hours</p>
+            <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, color: 'var(--bone)' }}>Monday – Friday: 6:00 AM – 3:30 PM</p>
+            <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, color: 'var(--bone)' }}>Saturday – Sunday: 7:00 AM – 5:00 PM</p>
+          </div>
+          <div>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--blood)', marginBottom: 8 }}>Contact</p>
+            <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 18, color: 'var(--bone)' }}>(406) 920-0386</p>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .visit-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{
+      padding: '60px 24px', borderTop: '1px solid rgba(139,26,26,0.2)',
+      background: 'var(--charcoal)'
+    }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
+        <div>
+          <p style={{
+            fontFamily: "'Cinzel Decorative', serif", fontSize: 20, fontWeight: 700,
+            color: 'var(--bone)', marginBottom: 8
+          }}>REVAMPED<span style={{ color: 'var(--blood)' }}>.</span></p>
+          <p style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 12, color: 'var(--fog)', letterSpacing: 1
+          }}>Women & LGBTQ Owned — Belgrade, Montana</p>
+        </div>
+        <div style={{ display: 'flex', gap: 24 }}>
+          {[
+            { label: "Facebook", href: "https://www.facebook.com/RevampedCoffeCo" },
+            { label: "Instagram", href: "https://www.instagram.com/revampedcoffeeco/" },
+            { label: "DoorDash", href: "https://www.doordash.com/store/revamped-coffee-co-belgrade-24566711/" },
+          ].map(s => (
+            <a key={s.label} href={s.href} target="_blank" rel="noopener" style={{
+              textDecoration: 'none', color: 'var(--fog)', fontFamily: "'Inter', sans-serif",
+              fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', transition: 'color 0.3s'
+            }} onMouseOver={e => e.target.style.color = 'var(--blood-light)'} onMouseOut={e => e.target.style.color = 'var(--fog)'}>{s.label}</a>
+          ))}
+        </div>
+      </div>
+      <div style={{ maxWidth: 1000, margin: '24px auto 0', borderTop: '1px solid rgba(232,224,214,0.06)', paddingTop: 24 }}>
+        <p style={{
+          fontFamily: "'Inter', sans-serif", fontSize: 11, color: 'rgba(154,146,138,0.5)',
+          textAlign: 'center', letterSpacing: 1
+        }}>Stay Spooky 👻 — © 2026 Revamped Coffee Co. All rights reserved.</p>
+      </div>
+    </footer>
+  );
+}
+
+function App() {
+  return (
+    <div>
+      <Nav />
+      <Hero />
+      <Story />
+      <Menu />
+      <Community />
+      <Reviews />
+      <Visit />
+      <Footer />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
