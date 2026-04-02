@@ -302,7 +302,7 @@ function Nav() {
               fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', transition: 'color 0.3s'
             }} onMouseOver={e => e.target.style.color = 'var(--bone)'} onMouseOut={e => e.target.style.color = 'var(--fog)'}>{l.label}</a>
           ))}
-          <a href="https://order.online/store/revamped-coffee-co-24566711" target="_blank" rel="noopener" style={{
+          <a href="https://www.doordash.com/store/revamped-coffee-co-belgrade-24566711/" target="_blank" rel="noopener" style={{
             textDecoration: 'none', color: 'var(--blood-light)', fontFamily: "'Inter', sans-serif",
             fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', fontWeight: 600
           }}>Order Online</a>
@@ -381,7 +381,7 @@ function Hero() {
       </p>
 
       <div className="fade-up fade-up-delay-3" style={{ display: 'flex', gap: 16, marginTop: 48, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button className="cta-btn">View Full Menu</button>
+        <button className="cta-btn" onClick={() => document.getElementById('menu').scrollIntoView({ behavior: 'smooth' })}>View Full Menu</button>
         <button className="ghost-btn" onClick={() => document.getElementById('story').scrollIntoView({ behavior: 'smooth' })}>Our Story</button>
       </div>
 
@@ -477,7 +477,24 @@ function Story() {
 
 function Menu() {
   const [activeCategory, setActiveCategory] = useState(0);
-  const cat = menuCategories[activeCategory];
+  const [categories, setCategories] = useState(menuCategories);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/menu')
+      .then(r => r.json())
+      .then(data => {
+        if (data.categories && data.categories.length > 0) {
+          setCategories(data.categories);
+          setActiveCategory(0);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const safeIndex = Math.min(activeCategory, categories.length - 1);
+  const cat = categories[safeIndex];
 
   return (
     <section id="menu" style={{
@@ -496,56 +513,71 @@ function Menu() {
           }}>Choose Your Poison</h2>
         </div>
 
-        {/* Category tabs */}
-        <div style={{
-          display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 48,
-          flexWrap: 'wrap', padding: '0 12px'
-        }}>
-          {menuCategories.map((c, i) => (
-            <button key={c.name} onClick={() => setActiveCategory(i)} style={{
-              background: i === activeCategory ? 'var(--blood)' : 'transparent',
-              color: i === activeCategory ? 'var(--bone)' : 'var(--fog)',
-              border: i === activeCategory ? '1px solid var(--blood)' : '1px solid rgba(232,224,214,0.1)',
-              padding: '10px 20px',
-              fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 1.5,
-              textTransform: 'uppercase', cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}>{c.name}</button>
-          ))}
-        </div>
-
-        {/* Category subtitle */}
-        <p style={{
-          textAlign: 'center', fontFamily: "'Crimson Text', serif", fontSize: 18,
-          fontStyle: 'italic', color: 'var(--fog)', marginBottom: 40
-        }}>{cat.subtitle}</p>
-
-        {/* Items grid */}
-        <div className="menu-grid" style={{
-          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16
-        }}>
-          {cat.items.map((item, i) => (
-            <div key={item.name + i} className="menu-card" style={{ padding: '28px 32px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <h3 style={{
-                  fontFamily: "'Cinzel Decorative', serif", fontSize: 16, fontWeight: 400,
-                  color: 'var(--bone)', letterSpacing: 0.5
-                }}>{item.name}</h3>
-                <span style={{
-                  fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--blood-light)',
-                  fontWeight: 500, whiteSpace: 'nowrap', marginLeft: 16
-                }}>${item.price}</span>
-              </div>
-              <p style={{
-                fontFamily: "'Crimson Text', serif", fontSize: 15, color: 'var(--fog)',
-                lineHeight: 1.5
-              }}>{item.desc}</p>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 0' }}>
+            <p style={{
+              fontFamily: "'Crimson Text', serif", fontSize: 16, fontStyle: 'italic',
+              color: 'var(--fog)', letterSpacing: 1
+            }}>Consulting the grimoire…</p>
+          </div>
+        ) : (
+          <>
+            {/* Category tabs */}
+            <div style={{
+              display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 48,
+              flexWrap: 'wrap', padding: '0 12px'
+            }}>
+              {categories.map((c, i) => (
+                <button key={c.name} onClick={() => setActiveCategory(i)} style={{
+                  background: i === safeIndex ? 'var(--blood)' : 'transparent',
+                  color: i === safeIndex ? 'var(--bone)' : 'var(--fog)',
+                  border: i === safeIndex ? '1px solid var(--blood)' : '1px solid rgba(232,224,214,0.1)',
+                  padding: '10px 20px',
+                  fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 1.5,
+                  textTransform: 'uppercase', cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}>{c.name}</button>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {/* Category subtitle */}
+            <p style={{
+              textAlign: 'center', fontFamily: "'Crimson Text', serif", fontSize: 18,
+              fontStyle: 'italic', color: 'var(--fog)', marginBottom: 40
+            }}>{cat.subtitle}</p>
+
+            {/* Items grid */}
+            <div className="menu-grid" style={{
+              display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16
+            }}>
+              {cat.items.map((item, i) => (
+                <div key={item.name + i} className="menu-card" style={{ padding: '28px 32px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <h3 style={{
+                      fontFamily: "'Cinzel Decorative', serif", fontSize: 16, fontWeight: 400,
+                      color: 'var(--bone)', letterSpacing: 0.5
+                    }}>{item.name}</h3>
+                    {item.price ? (
+                      <span style={{
+                        fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--blood-light)',
+                        fontWeight: 500, whiteSpace: 'nowrap', marginLeft: 16
+                      }}>${item.price}</span>
+                    ) : null}
+                  </div>
+                  <p style={{
+                    fontFamily: "'Crimson Text', serif", fontSize: 15, color: 'var(--fog)',
+                    lineHeight: 1.5
+                  }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <button className="ghost-btn">View Full Menu</button>
+          <a href="https://www.doordash.com/store/revamped-coffee-co-belgrade-24566711/" target="_blank" rel="noopener" style={{ textDecoration: 'none' }}>
+            <button className="ghost-btn">Order on DoorDash</button>
+          </a>
         </div>
       </div>
     </section>
@@ -630,6 +662,115 @@ function Community() {
         @media (max-width: 768px) {
           .community-grid { grid-template-columns: 1fr !important; }
         }
+      `}</style>
+    </section>
+  );
+}
+
+function Social() {
+  const [fbLoaded, setFbLoaded] = useState(false);
+
+  useEffect(() => {
+    // Load Facebook SDK
+    if (!document.getElementById('fb-sdk')) {
+      const script = document.createElement('script');
+      script.id = 'fb-sdk';
+      script.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v18.0';
+      script.async = true;
+      script.defer = true;
+      script.crossOrigin = 'anonymous';
+      script.onload = () => setFbLoaded(true);
+      document.body.appendChild(script);
+    } else {
+      setFbLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (fbLoaded && window.FB) {
+      window.FB.XFBML.parse();
+    }
+  }, [fbLoaded]);
+
+  return (
+    <section id="social" style={{ padding: '120px 24px' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+        <div className="blood-divider" style={{ marginBottom: 80 }} />
+
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 11, letterSpacing: 5, textTransform: 'uppercase',
+            color: 'var(--blood)', display: 'block', marginBottom: 16
+          }}>Stay Connected</span>
+          <h2 style={{
+            fontFamily: "'Cinzel Decorative', serif", fontSize: '2.5rem', fontWeight: 700,
+            color: 'var(--bone)'
+          }}>From the Crypt</h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }} className="social-grid">
+          {/* Facebook embed */}
+          <div style={{
+            background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
+            padding: '32px', overflow: 'hidden'
+          }}>
+            <span style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
+              textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 20
+            }}>Facebook</span>
+            <div style={{ borderRadius: 4, overflow: 'hidden', background: '#1a1a1a', minHeight: 400 }}>
+              <div className="fb-page"
+                data-href="https://www.facebook.com/RevampedCoffeCo"
+                data-tabs="timeline"
+                data-width="500"
+                data-height="400"
+                data-small-header="true"
+                data-adapt-container-width="true"
+                data-hide-cover="false"
+                data-show-facepile="false">
+              </div>
+            </div>
+          </div>
+
+          {/* Instagram embed */}
+          <div style={{
+            background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
+            padding: '32px', overflow: 'hidden'
+          }}>
+            <span style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
+              textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 20
+            }}>Instagram</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <a href="https://www.instagram.com/revampedcoffeeco/" target="_blank" rel="noopener" style={{
+                display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none',
+                padding: '16px 20px', background: 'rgba(139,26,26,0.08)',
+                border: '1px solid rgba(139,26,26,0.2)', transition: 'all 0.3s'
+              }}
+              onMouseOver={e => { e.currentTarget.style.borderColor = 'rgba(139,26,26,0.5)'; e.currentTarget.style.background = 'rgba(139,26,26,0.12)'; }}
+              onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(139,26,26,0.2)'; e.currentTarget.style.background = 'rgba(139,26,26,0.08)'; }}>
+                <span style={{ fontSize: 28 }}>📸</span>
+                <div>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--bone)', fontWeight: 500, marginBottom: 2 }}>@revampedcoffeeco</p>
+                  <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 14, color: 'var(--fog)' }}>Follow for daily specials, events & spooky vibes</p>
+                </div>
+              </a>
+              <div style={{ padding: '24px 20px', background: 'rgba(10,10,10,0.5)', border: '1px solid rgba(232,224,214,0.06)' }}>
+                <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 16, color: 'var(--fog)', lineHeight: 1.8, fontStyle: 'italic' }}>
+                  Seasonal drinks, community dinner announcements, and behind-the-scenes from The Hut and The Cafe. Best way to stay in the loop.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .social-grid { grid-template-columns: 1fr !important; }
+        }
+        /* Override FB embed styling to match dark theme */
+        .fb-page iframe { border-radius: 4px; }
       `}</style>
     </section>
   );
@@ -822,6 +963,7 @@ function App() {
       <Story />
       <Menu />
       <Community />
+      <Social />
       <Reviews />
       <Visit />
       <Footer />
