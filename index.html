@@ -664,7 +664,7 @@ function FbEmbed() {
   return (
     <div ref={containerRef} style={{
       background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
-      padding: '32px', display: 'inline-block'
+      padding: '32px', maxWidth: 564, margin: '0 auto'
     }}>
       <span style={{
         fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
@@ -727,9 +727,7 @@ function Social() {
           }}>From the Crypt</h2>
         </div>
 
-        <div style={{ textAlign: 'center' }}>
-          <FbEmbed />
-        </div>
+        <FbEmbed />
       </div>
 
       <style>{`
