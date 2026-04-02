@@ -678,67 +678,30 @@ function Social() {
           }}>From the Crypt</h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }} className="social-grid">
-          {/* Facebook embed */}
-          <div style={{
-            background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
-            padding: '32px', overflow: 'hidden'
-          }}>
-            <span style={{
-              fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
-              textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 20
-            }}>Facebook</span>
-            <div style={{ borderRadius: 4, overflow: 'hidden', background: '#1a1a1a', minHeight: 400 }}>
-              <div className="fb-page"
-                data-href="https://www.facebook.com/RevampedCoffeCo"
-                data-tabs="timeline"
-                data-width="500"
-                data-height="400"
-                data-small-header="true"
-                data-adapt-container-width="true"
-                data-hide-cover="false"
-                data-show-facepile="false">
-              </div>
-            </div>
-          </div>
-
-          {/* Instagram embed */}
-          <div style={{
-            background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
-            padding: '32px', overflow: 'hidden'
-          }}>
-            <span style={{
-              fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
-              textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 20
-            }}>Instagram</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <a href="https://www.instagram.com/revampedcoffeeco/" target="_blank" rel="noopener" style={{
-                display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none',
-                padding: '16px 20px', background: 'rgba(139,26,26,0.08)',
-                border: '1px solid rgba(139,26,26,0.2)', transition: 'all 0.3s'
-              }}
-              onMouseOver={e => { e.currentTarget.style.borderColor = 'rgba(139,26,26,0.5)'; e.currentTarget.style.background = 'rgba(139,26,26,0.12)'; }}
-              onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(139,26,26,0.2)'; e.currentTarget.style.background = 'rgba(139,26,26,0.08)'; }}>
-                <span style={{ fontSize: 28 }}>📸</span>
-                <div>
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--bone)', fontWeight: 500, marginBottom: 2 }}>@revampedcoffeeco</p>
-                  <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 14, color: 'var(--fog)' }}>Follow for daily specials, events & spooky vibes</p>
-                </div>
-              </a>
-              <div style={{ padding: '24px 20px', background: 'rgba(10,10,10,0.5)', border: '1px solid rgba(232,224,214,0.06)' }}>
-                <p style={{ fontFamily: "'Crimson Text', serif", fontSize: 16, color: 'var(--fog)', lineHeight: 1.8, fontStyle: 'italic' }}>
-                  Seasonal drinks, community dinner announcements, and behind-the-scenes from The Hut and The Cafe. Best way to stay in the loop.
-                </p>
-              </div>
+        <div style={{
+          background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
+          padding: '32px', maxWidth: 700, margin: '0 auto'
+        }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
+            textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 20
+          }}>Facebook</span>
+          <div style={{ borderRadius: 4, overflow: 'hidden', background: '#1a1a1a', minHeight: 500 }}>
+            <div className="fb-page"
+              data-href="https://www.facebook.com/RevampedCoffeCo"
+              data-tabs="timeline"
+              data-width=""
+              data-height="500"
+              data-small-header="true"
+              data-adapt-container-width="true"
+              data-hide-cover="false"
+              data-show-facepile="false">
             </div>
           </div>
         </div>
       </div>
 
       <style>{`
-        @media (max-width: 768px) {
-          .social-grid { grid-template-columns: 1fr !important; }
-        }
         /* Override FB embed styling to match dark theme */
         .fb-page iframe { border-radius: 4px; }
       `}</style>
