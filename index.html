@@ -637,6 +637,55 @@ function Community() {
   );
 }
 
+function FbEmbed() {
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(500);
+
+  useEffect(() => {
+    const measure = () => {
+      if (containerRef.current) {
+        // Account for padding (32px each side)
+        const w = containerRef.current.offsetWidth - 64;
+        // FB plugin max is 500, but let's use the full container
+        setContainerWidth(Math.min(Math.max(w, 180), 500));
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  useEffect(() => {
+    if (window.FB) {
+      window.FB.XFBML.parse();
+    }
+  }, [containerWidth]);
+
+  return (
+    <div ref={containerRef} style={{
+      background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
+      padding: '32px', maxWidth: 900, margin: '0 auto'
+    }}>
+      <span style={{
+        fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
+        textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 20
+      }}>Facebook</span>
+      <div style={{ borderRadius: 4, overflow: 'hidden', background: '#1a1a1a', minHeight: 500, display: 'flex', justifyContent: 'center' }}>
+        <div className="fb-page"
+          data-href="https://www.facebook.com/RevampedCoffeCo"
+          data-tabs="timeline"
+          data-width={containerWidth}
+          data-height="500"
+          data-small-header="true"
+          data-adapt-container-width="true"
+          data-hide-cover="false"
+          data-show-facepile="false">
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Social() {
   const [fbLoaded, setFbLoaded] = useState(false);
 
@@ -678,27 +727,7 @@ function Social() {
           }}>From the Crypt</h2>
         </div>
 
-        <div style={{
-          background: 'var(--charcoal)', border: '1px solid rgba(139,26,26,0.15)',
-          padding: '32px', maxWidth: 700, margin: '0 auto'
-        }}>
-          <span style={{
-            fontFamily: "'Inter', sans-serif", fontSize: 10, letterSpacing: 3,
-            textTransform: 'uppercase', color: 'var(--blood)', display: 'block', marginBottom: 20
-          }}>Facebook</span>
-          <div style={{ borderRadius: 4, overflow: 'hidden', background: '#1a1a1a', minHeight: 500 }}>
-            <div className="fb-page"
-              data-href="https://www.facebook.com/RevampedCoffeCo"
-              data-tabs="timeline"
-              data-width=""
-              data-height="500"
-              data-small-header="true"
-              data-adapt-container-width="true"
-              data-hide-cover="false"
-              data-show-facepile="false">
-            </div>
-          </div>
-        </div>
+        <FbEmbed />
       </div>
 
       <style>{`
