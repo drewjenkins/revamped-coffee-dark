@@ -477,24 +477,7 @@ function Story() {
 
 function Menu() {
   const [activeCategory, setActiveCategory] = useState(0);
-  const [categories, setCategories] = useState(menuCategories);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/menu')
-      .then(r => r.json())
-      .then(data => {
-        if (data.categories && data.categories.length > 0) {
-          setCategories(data.categories);
-          setActiveCategory(0);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  const safeIndex = Math.min(activeCategory, categories.length - 1);
-  const cat = categories[safeIndex];
+  const cat = menuCategories[activeCategory];
 
   return (
     <section id="menu" style={{
@@ -513,66 +496,53 @@ function Menu() {
           }}>Choose Your Poison</h2>
         </div>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <p style={{
-              fontFamily: "'Crimson Text', serif", fontSize: 16, fontStyle: 'italic',
-              color: 'var(--fog)', letterSpacing: 1
-            }}>Consulting the grimoire…</p>
-          </div>
-        ) : (
-          <>
-            {/* Category tabs */}
-            <div style={{
-              display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 48,
-              flexWrap: 'wrap', padding: '0 12px'
-            }}>
-              {categories.map((c, i) => (
-                <button key={c.name} onClick={() => setActiveCategory(i)} style={{
-                  background: i === safeIndex ? 'var(--blood)' : 'transparent',
-                  color: i === safeIndex ? 'var(--bone)' : 'var(--fog)',
-                  border: i === safeIndex ? '1px solid var(--blood)' : '1px solid rgba(232,224,214,0.1)',
-                  padding: '10px 20px',
-                  fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 1.5,
-                  textTransform: 'uppercase', cursor: 'pointer',
-                  transition: 'all 0.3s'
-                }}>{c.name}</button>
-              ))}
-            </div>
+        {/* Category tabs */}
+        <div style={{
+          display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 48,
+          flexWrap: 'wrap', padding: '0 12px'
+        }}>
+          {menuCategories.map((c, i) => (
+            <button key={c.name} onClick={() => setActiveCategory(i)} style={{
+              background: i === activeCategory ? 'var(--blood)' : 'transparent',
+              color: i === activeCategory ? 'var(--bone)' : 'var(--fog)',
+              border: i === activeCategory ? '1px solid var(--blood)' : '1px solid rgba(232,224,214,0.1)',
+              padding: '10px 20px',
+              fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: 1.5,
+              textTransform: 'uppercase', cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}>{c.name}</button>
+          ))}
+        </div>
 
-            {/* Category subtitle */}
-            <p style={{
-              textAlign: 'center', fontFamily: "'Crimson Text', serif", fontSize: 18,
-              fontStyle: 'italic', color: 'var(--fog)', marginBottom: 40
-            }}>{cat.subtitle}</p>
+        {/* Category subtitle */}
+        <p style={{
+          textAlign: 'center', fontFamily: "'Crimson Text', serif", fontSize: 18,
+          fontStyle: 'italic', color: 'var(--fog)', marginBottom: 40
+        }}>{cat.subtitle}</p>
 
-            {/* Items grid */}
-            <div className="menu-grid" style={{
-              display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16
-            }}>
-              {cat.items.map((item, i) => (
-                <div key={item.name + i} className="menu-card" style={{ padding: '28px 32px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                    <h3 style={{
-                      fontFamily: "'Cinzel Decorative', serif", fontSize: 16, fontWeight: 400,
-                      color: 'var(--bone)', letterSpacing: 0.5
-                    }}>{item.name}</h3>
-                    {item.price ? (
-                      <span style={{
-                        fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--blood-light)',
-                        fontWeight: 500, whiteSpace: 'nowrap', marginLeft: 16
-                      }}>${item.price}</span>
-                    ) : null}
-                  </div>
-                  <p style={{
-                    fontFamily: "'Crimson Text', serif", fontSize: 15, color: 'var(--fog)',
-                    lineHeight: 1.5
-                  }}>{item.desc}</p>
-                </div>
-              ))}
+        {/* Items grid */}
+        <div className="menu-grid" style={{
+          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16
+        }}>
+          {cat.items.map((item, i) => (
+            <div key={item.name + i} className="menu-card" style={{ padding: '28px 32px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <h3 style={{
+                  fontFamily: "'Cinzel Decorative', serif", fontSize: 16, fontWeight: 400,
+                  color: 'var(--bone)', letterSpacing: 0.5
+                }}>{item.name}</h3>
+                <span style={{
+                  fontFamily: "'Inter', sans-serif", fontSize: 14, color: 'var(--blood-light)',
+                  fontWeight: 500, whiteSpace: 'nowrap', marginLeft: 16
+                }}>${item.price}</span>
+              </div>
+              <p style={{
+                fontFamily: "'Crimson Text', serif", fontSize: 15, color: 'var(--fog)',
+                lineHeight: 1.5
+              }}>{item.desc}</p>
             </div>
-          </>
-        )}
+          ))}
+        </div>
 
         <div style={{ textAlign: 'center', marginTop: 48 }}>
           <a href="https://www.doordash.com/store/revamped-coffee-co-belgrade-24566711/" target="_blank" rel="noopener" style={{ textDecoration: 'none' }}>
